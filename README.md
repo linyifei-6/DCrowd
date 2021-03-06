@@ -1,4 +1,4 @@
-# TPSCrowd
+# DCrowd
 DCrowd: A Decentralized Service Model for Credible Crowdsourcing based on Game Theory and Smart Contracts
 
 According to the two-phase submission mechanism and payment function, we have implemented a prototype system,DCrowd, based on smart contracts using Solidity programming.In general, our DCrowd system contains two entity roles: R and W(CW)and four smart contracts: UM, CS, CSM,and TPS.
