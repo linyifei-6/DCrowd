@@ -1,7 +1,7 @@
 # DCrowd
 DCrowd: A Decentralized Service Model for Credible Crowdsourcing based on Game Theory and Smart Contracts
 
-According to the two-phase submission mechanism and payment function, we have implemented a prototype system,DCrowd, based on smart contracts using Solidity programming.In general, our DCrowd system contains two entity roles: R and W(CW)and four smart contracts: UM, CS, CSM,and TPS.
+According to the two-phase submission mechanism and payment function, we have implemented a prototype system,DCrowd, based on smart contracts using Solidity programming. In general, our DCrowd system contains two entity roles: R and W(CW)and four smart contracts: UM, CS, CSM,and TPS.
 
 TPS is mainly responsible for storing crowdsourcing data and implementing functions such as two-phase submission and quality inspection. 
 CSM stipulates various operations after the crowdsourcing activity starts, and is responsible for implementing the crowdsourcing process and managing the state of the crowdsourcing contract. These two smart contracts have been deployed on the blockchain before the crowdsourcing activity starts for participants to review. 
