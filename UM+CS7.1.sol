@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: SimPL-2.0
 pragma solidity ^0.7.0;
 
+import "./safemath.sol";
+
 interface TwoSubmission{
 
 	function preEnroll(address _CSContract, address _crowdUR, bytes32 _sealedrandom) external returns(bool);
@@ -10,6 +12,10 @@ interface TwoSubmission{
 }
 
 contract UserManagement {
+
+	using SafeMath for uint;
+	using SafeMath for int8;
+
 
 	TwoSubmission public myTwoSubmisson;
 	CSManagement public csm;
@@ -183,7 +189,7 @@ contract UserManagement {
 	{
 		require(msg.value == registrationFee,"Wrong registrationFee!");
 		CrowdURAddrs.push(msg.sender);
-		CrowdUserPool[msg.sender].index = CrowdURAddrs.length - 1;
+		CrowdUserPool[msg.sender].index = CrowdURAddrs.length.sub(1);
 		CrowdUserPool[msg.sender].registered = true;
 		CrowdUserPool[msg.sender].reputationUR = 100;
 		CrowdUserPool[msg.sender].reputationUT = 100;
@@ -219,13 +225,13 @@ contract UserManagement {
 	{
 		require(CrowdUserPool[msg.sender].state == URState.Online,"Not Online!");
 		require(block.timestamp < CSContractPool[_CSContract].enrollDL,"Out of enrollDL!");
-		require(CSToEnrolledURs[_CSContract].length <= 10 * CSContractPool[_CSContract].sortitonNum,"Too many");
+		require(CSToEnrolledURs[_CSContract].length <= CSContractPool[_CSContract].sortitonNum.mul(10),"Too many");
 		require(CSContractPool[_CSContract].enrollFee == msg.value,"Wrong EnrollFee");
 
 		require(myTwoSubmisson.enroll(_CSContract, msg.sender, _randomKey),"enroll error");
 
 		//检测是否报名过该CSC(必须通过该方法检测)
-		for(uint i =0;i < CSToEnrolledURs[_CSContract].length ; i++){
+		for(uint i =0;i < CSToEnrolledURs[_CSContract].length ; i=i.add(1)) {
 			require(msg.sender != CSToEnrolledURs[_CSContract][i],"Have Enrolled!");
 		}
 		//报名成功
@@ -279,7 +285,7 @@ contract UserManagement {
 		// require(block.timestamp < CrowdUserPool[_candidate].confirmDeadline,"Time is over.");在CSM中检查过了
 		require(msg.sender == CrowdUserPool[_candidate].CSContract,"Illegal call!");
 
-		CrowdUserPool[_candidate].reputationUR -= 1;
+		CrowdUserPool[_candidate].reputationUR = CrowdUserPool[_candidate].reputationUR.sub(1);
 
 		if(CrowdUserPool[_candidate].reputationUR > 0){
 			CrowdUserPool[_candidate].state = URState.Online;
@@ -319,7 +325,7 @@ contract UserManagement {
 
 				emit LogCrowdURSelected(URAddr, block.timestamp ,msg.sender);
 
-				CrowdURCounter++;
+				CrowdURCounter = CrowdURCounter.add(1);
 				// onlineCounter++;//可能用不上
 			}
 
@@ -327,7 +333,7 @@ contract UserManagement {
 		}
 
 		//确保下次先请求再选人
-		for(uint j = 0;j < CSToEnrolledURs[msg.sender].length ; j++){
+		for(uint j = 0;j < CSToEnrolledURs[msg.sender].length ; j=j.add(1)){
 			if(CrowdUserPool[CSToEnrolledURs[msg.sender][j]].CSContract != msg.sender){
 				CrowdUserPool[CSToEnrolledURs[msg.sender][j]].preEnrolled[msg.sender] = false;
 			}
@@ -346,9 +352,9 @@ contract UserManagement {
 		checkCSContract(msg.sender)
 		returns(bool)
 	{
-		for(uint i = 0 ; i < selectedCrowdURs.length; i++){
+		for(uint i = 0 ; i < selectedCrowdURs.length; i=i.add(1)){
 			if(CrowdUserPool[selectedCrowdURs[i]].state == URState.Candidate){
-				CrowdUserPool[selectedCrowdURs[i]].reputationUR -= 5;
+				CrowdUserPool[selectedCrowdURs[i]].reputationUR = CrowdUserPool[selectedCrowdURs[i]].reputationUR.sub(5);
 				if(CrowdUserPool[selectedCrowdURs[i]].reputationUR > 0){
 					CrowdUserPool[selectedCrowdURs[i]].state = URState.Online;
 					// onlineCounter++;
@@ -412,11 +418,11 @@ contract UserManagement {
 			require(CrowdUserPool[_crowdUser].CSContract == msg.sender,"Wrong CSContract");
 			require(CrowdUserPool[_crowdUser].state == URState.Busy,"Not Busy");
 
-			CrowdUserPool[_crowdUser].reputationUR -= _value;
+			CrowdUserPool[_crowdUser].reputationUR = CrowdUserPool[_crowdUser].reputationUR.sub(_value);
 		}else{
 			require(_crowdUser == CSContractPool[msg.sender].crowdUT,"Not Your UT");
 
-			CrowdUserPool[_crowdUser].reputationUT -= _value;
+			CrowdUserPool[_crowdUser].reputationUT = CrowdUserPool[_crowdUser].reputationUT.sub(_value);
 		}
 		return true;
 	}
@@ -507,6 +513,9 @@ contract OverallManagement {
 	TwoSubmission public myTwoSubmisson;
    	UserManagement public um;
 	address public CrowdUT;
+
+	using SafeMath for uint;
+	using SafeMath for int8;
 	
 	constructor(address _um,address _CrowdUT,address _TwoAddrs ,address _csm) {
 		um =  UserManagement(_um);
@@ -618,7 +627,7 @@ contract OverallManagement {
 		bool ready = csm.start(_detail, msg.value);
 
 		if(ready){
-			for(uint i = 0 ; i < CrowdURCommittee.length ; i++)
+			for(uint i = 0 ; i < CrowdURCommittee.length ; i=i.add(1))
 				require(um.missionStart(CrowdURCommittee[i]));
 		}
 	}
@@ -713,7 +722,7 @@ contract OverallManagement {
 
 		ReleaseID = _releaseID;
 
-		for(uint i = 0 ; i< CrowdURCommittee.length ; i++){
+		for(uint i = 0 ; i< CrowdURCommittee.length ; i=i.add(1)){
 
         	if(ReleaseID[i]){
         		require(um.ReputationDecraese(true,CrowdURCommittee[i],10),"ReputationDecraese true,error");
@@ -723,10 +732,8 @@ contract OverallManagement {
         delete CrowdURCommittee;
 
 	}
-
-
+	
 	function getbalance() public view returns(uint) {
 		return address(this).balance;
 	}
-
 }
