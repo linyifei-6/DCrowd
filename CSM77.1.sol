@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: SimPL-2.0
 pragma solidity ^0.7.0;
 
+import "./safemath.sol";
 
 interface TwoSubmission{
 	
@@ -15,6 +16,9 @@ interface TwoSubmission{
 }
 
 contract CSManagement {
+
+	using SafeMath for uint;
+	using SafeMath for int;
 
 	TwoSubmission public myTwoSubmisson;
 	
@@ -180,9 +184,9 @@ contract CSManagement {
 		require(CSToNumber[msg.sender].CrowdURNumMax > 0);
 
 		uint oneUnit = 1 gwei;
-		CSToFee[msg.sender].RewardFee = _rewardFee * oneUnit;
-		CSToFee[msg.sender].EnrollFee = _enrollFee * oneUnit;
-		CSToFee[msg.sender].CommFee = _deposit * oneUnit;
+		CSToFee[msg.sender].RewardFee = _rewardFee.mul(oneUnit);
+		CSToFee[msg.sender].EnrollFee = _enrollFee.mul(oneUnit);
+		CSToFee[msg.sender].CommFee = _deposit.mul(oneUnit);
 
 		return (CSToFee[msg.sender].RewardFee,CSToFee[msg.sender].CommFee, CSToFee[msg.sender].CommFee);
 	}
@@ -193,10 +197,10 @@ contract CSManagement {
 		returns(uint) 
 	{
 		uint oneUnit = 1 minutes;
-		CSToTime[msg.sender].EnrollTime = _enrollTime * oneUnit;
-		CSToTime[msg.sender].SortitionTime = _sortTime * oneUnit;
-		CSToTime[msg.sender].AcceptTime = _acceptTime * oneUnit;
-		CSToTime[msg.sender].StartTime = _startTime * oneUnit;
+		CSToTime[msg.sender].EnrollTime = _enrollTime.mul(oneUnit);
+		CSToTime[msg.sender].SortitionTime = _sortTime.mul(oneUnit);
+		CSToTime[msg.sender].AcceptTime = _acceptTime.mul(oneUnit);
+		CSToTime[msg.sender].StartTime = _startTime.mul(oneUnit);
 
 		return CSToTime[msg.sender].EnrollTime;
 	}
@@ -208,43 +212,13 @@ contract CSManagement {
 	{
 		uint oneUnit = 1 minutes;
 
-		CSToTime[msg.sender].PreSubmitTime = _presubmitTime * oneUnit;
-		CSToTime[msg.sender].SubmitTime = _submitTime * oneUnit;
-		CSToTime[msg.sender].EvaluationTime = _evaluationTime * oneUnit;
-		CSToTime[msg.sender].WithdrawTime = _withdrawTime * oneUnit;
+		CSToTime[msg.sender].PreSubmitTime = _presubmitTime.mul(oneUnit);
+		CSToTime[msg.sender].SubmitTime = _submitTime.mul(oneUnit);
+		CSToTime[msg.sender].EvaluationTime = _evaluationTime.mul(oneUnit);
+		CSToTime[msg.sender].WithdrawTime = _withdrawTime.mul(oneUnit);
 		return true;
 	}
-/*
-	function setURTimeParas(uint _enrollTime,uint _acceptTime,uint _presubmitTime, uint _submitTime,uint _withdrawTime)
-		external
-		checkState(State.Fresh)
-		returns(uint)
-	{
-	    uint oneUnit = 1 minutes;
 
-		CSToTime[msg.sender].EnrollTime = _enrollTime * oneUnit;
-		CSToTime[msg.sender].AcceptTime = _acceptTime * oneUnit;
-		CSToTime[msg.sender].PreSubmitTime = _presubmitTime * oneUnit;
-		CSToTime[msg.sender].SubmitTime = _submitTime * oneUnit;
-		CSToTime[msg.sender].WithdrawTime = _withdrawTime * oneUnit;
-		return CSToTime[msg.sender].EnrollTime;
-	}
-
-	function setUTTimeParas(uint _sortTime, uint _startTime,uint _checkTime,uint _evaluationTime, uint _CleanTime)
-		external
-		checkState(State.Fresh)
-		returns(bool)
-	{
-	    uint oneUnit = 1 seconds;
-
-	    CSToTime[msg.sender].SortitionTime = _sortTime * oneUnit;
-		CSToTime[msg.sender].StartTime = _startTime * oneUnit;
-		CSToTime[msg.sender].CheckTime = _checkTime * oneUnit;
-		CSToTime[msg.sender].EvaluationTime = _evaluationTime * oneUnit;
-		CSToTime[msg.sender].CleanTime = _CleanTime * oneUnit;
-		return true;
-	}
-*/
 	function recruit(string memory _introduction)
 		external
 		checkState(State.Fresh)
@@ -264,22 +238,22 @@ contract CSManagement {
 
 		CSToText[msg.sender].Introduction = _introduction;
 
-		CSToTimeEnd[msg.sender].PreEnrollTimeEnd = block.timestamp + CSToTime[msg.sender].EnrollTime;
-		CSToTimeEnd[msg.sender].EnrollTimeEnd =CSToTimeEnd[msg.sender].PreEnrollTimeEnd + CSToTime[msg.sender].EnrollTime;
-		CSToTimeEnd[msg.sender].SortitionEnd = CSToTimeEnd[msg.sender].EnrollTimeEnd + CSToTime[msg.sender].SortitionTime;
-		CSToTimeEnd[msg.sender].AcceptTimeEnd = CSToTimeEnd[msg.sender].SortitionEnd + CSToTime[msg.sender].AcceptTime;
-		CSToTimeEnd[msg.sender].StartTimeEnd = CSToTimeEnd[msg.sender].AcceptTimeEnd + CSToTime[msg.sender].StartTime;
-		CSToTimeEnd[msg.sender].PreSubmitTimeEnd = CSToTimeEnd[msg.sender].StartTimeEnd + CSToTime[msg.sender].PreSubmitTime;
-		CSToTimeEnd[msg.sender].SubmitTimeEnd = CSToTimeEnd[msg.sender].PreSubmitTimeEnd + CSToTime[msg.sender].SubmitTime;
-		CSToTimeEnd[msg.sender].EvaluationTimeEnd = CSToTimeEnd[msg.sender].SubmitTimeEnd + CSToTime[msg.sender].EvaluationTime;
-		CSToTimeEnd[msg.sender].URWithdrawEnd = CSToTimeEnd[msg.sender].EvaluationTimeEnd + CSToTime[msg.sender].WithdrawTime;
-		CSToTimeEnd[msg.sender].UTWithdrawEnd = CSToTimeEnd[msg.sender].URWithdrawEnd + CSToTime[msg.sender].WithdrawTime;
+		CSToTimeEnd[msg.sender].PreEnrollTimeEnd = block.timestamp.add(CSToTime[msg.sender].EnrollTime);
+		CSToTimeEnd[msg.sender].EnrollTimeEnd =CSToTimeEnd[msg.sender].PreEnrollTimeEnd.add(CSToTime[msg.sender].EnrollTime);
+		CSToTimeEnd[msg.sender].SortitionEnd = CSToTimeEnd[msg.sender].EnrollTimeEnd.add(CSToTime[msg.sender].SortitionTime) ;
+		CSToTimeEnd[msg.sender].AcceptTimeEnd = CSToTimeEnd[msg.sender].SortitionEnd.add(CSToTime[msg.sender].AcceptTime) ;
+		CSToTimeEnd[msg.sender].StartTimeEnd = CSToTimeEnd[msg.sender].AcceptTimeEnd.add(CSToTime[msg.sender].StartTime) ;
+		CSToTimeEnd[msg.sender].PreSubmitTimeEnd = CSToTimeEnd[msg.sender].StartTimeEnd.add(CSToTime[msg.sender].PreSubmitTime) ;
+		CSToTimeEnd[msg.sender].SubmitTimeEnd = CSToTimeEnd[msg.sender].PreSubmitTimeEnd.add(CSToTime[msg.sender].SubmitTime) ;
+		CSToTimeEnd[msg.sender].EvaluationTimeEnd = CSToTimeEnd[msg.sender].SubmitTimeEnd.add(CSToTime[msg.sender].EvaluationTime) ;
+		CSToTimeEnd[msg.sender].URWithdrawEnd = CSToTimeEnd[msg.sender].EvaluationTimeEnd.add(CSToTime[msg.sender].WithdrawTime) ;
+		CSToTimeEnd[msg.sender].UTWithdrawEnd = CSToTimeEnd[msg.sender].URWithdrawEnd.add(CSToTime[msg.sender].WithdrawTime) ;
 
 		//本次开始，
 		if(!CSDataInfo[msg.sender].CSInit)
 			CSDataInfo[msg.sender].CSInit = false;
 
-		CSToFee[msg.sender].UTPrepayment = CSToFee[msg.sender].RewardFee * CSToNumber[msg.sender].CrowdURNumMax * CSToNumber[msg.sender].ImageNumber;
+		CSToFee[msg.sender].UTPrepayment = CSToFee[msg.sender].RewardFee.mul(CSToNumber[msg.sender].CrowdURNumMax.mul(CSToNumber[msg.sender].ImageNumber));
 		
 		return (CSToNumber[msg.sender].CrowdURNumMax ,CSToTimeEnd[msg.sender].PreEnrollTimeEnd,CSToTimeEnd[msg.sender].EnrollTimeEnd);
 	}
@@ -367,15 +341,15 @@ contract CSManagement {
 		require(_workID < CSToNumber[msg.sender].CrowdURNumMax,"Wrong ID");
 		require(_missionID.length == CSToNumber[msg.sender].ImageNumber,"Wrong length");
 
-        for(uint i =0;i<_missionID.length ; i++)
+        for(uint i =0;i<_missionID.length ; i=i.add(1))
             require(_missionID[i] == 0 || _missionID[i] == -1,"Wrong Table");
 
         CSDataInfo[msg.sender].workIDToMissionID[_workID] = _missionID;
 
 		uint counter = 0;
-		for(uint j =0;j<CSToNumber[msg.sender].CrowdURNumMax ; j++)
+		for(uint j =0;j<CSToNumber[msg.sender].CrowdURNumMax ; j=j.add(1))
             if(CSDataInfo[msg.sender].workIDToMissionID[j].length != 0)
-                counter++;
+                counter = counter.add(1);
 
         if(counter == CSToNumber[msg.sender].CrowdURNumMax)
            	CrowdUT[CSDataInfo[msg.sender].crowdUT].setMissionID = true;
@@ -389,7 +363,7 @@ contract CSManagement {
 		checkTimeIn(CSToTimeEnd[msg.sender].SortitionEnd)
 		returns(uint)
 	{	
-		require(CSToNumber[msg.sender].CrowdURNumMax - CSToCommittee[msg.sender].length == _number,"Wrong _number");
+		require( CSToNumber[msg.sender].CrowdURNumMax.sub(CSToCommittee[msg.sender].length) == _number,"Wrong _number");
 		require(CrowdUT[CSDataInfo[msg.sender].crowdUT].setMissionID,"No setMissionID");
 
 		CrowdUT[CSDataInfo[msg.sender].crowdUT].sorted = true;
@@ -413,11 +387,11 @@ contract CSManagement {
     	// require(myTwoSubmisson.resetURData(_crowdUR),"ts");//接受时清空TPS数据
 
 		CSToCommittee[msg.sender].push(_crowdUR);
-		CrowdURs[_crowdUR].workID = CSToCommittee[msg.sender].length - 1;
+		CrowdURs[_crowdUR].workID = CSToCommittee[msg.sender].length.sub(1);
 		CrowdURs[_crowdUR].accepted = true;
         CrowdURs[_crowdUR].presubmited = false;
         CrowdURs[_crowdUR].submited = false;
-		CrowdURs[_crowdUR].balance +=  _deposit;
+		CrowdURs[_crowdUR].balance = CrowdURs[_crowdUR].balance.add(_deposit);
 		CrowdURs[_crowdUR].CSContract = msg.sender;
 
 		require(myTwoSubmisson.missionID(_crowdUR,CSDataInfo[msg.sender].workIDToMissionID[CrowdURs[_crowdUR].workID],CSToNumber[msg.sender].ImageNumber),"missionID error");
@@ -457,7 +431,7 @@ contract CSManagement {
 		//无论成功创建与否，都有可能存在超时的UR
 
 		CSToText[msg.sender].Detail = _detail;
-		CrowdUT[CSDataInfo[msg.sender].crowdUT].balance += _deposit;
+		CrowdUT[CSDataInfo[msg.sender].crowdUT].balance =CrowdUT[CSDataInfo[msg.sender].crowdUT].balance.add(_deposit);
 		CrowdUT[CSDataInfo[msg.sender].crowdUT].startMission = true;
 
 		if(CSDataInfo[msg.sender].CState == State.Ready){
@@ -506,7 +480,7 @@ contract CSManagement {
 
 		if(CrowdURs[_crowdUR].submited == false){
 			CrowdURs[_crowdUR].submited = true;
-			CSToNumber[msg.sender].SubmitNum++;
+			CSToNumber[msg.sender].SubmitNum = CSToNumber[msg.sender].SubmitNum.add(1);
 		}
 
 		emit LogURSubmited(msg.sender, _crowdUR , block.timestamp, _message);
@@ -525,7 +499,7 @@ contract CSManagement {
 	    bool[] memory _noSubmitID = new bool[](CSToCommittee[msg.sender].length);
         bool[] memory _noPresubmitID = new bool[](CSToCommittee[msg.sender].length);
 
-		for(uint i = 0 ; i <CSToCommittee[msg.sender].length ; i++){
+		for(uint i = 0 ; i <CSToCommittee[msg.sender].length ; i=i.add(1)){
 
 			CSDataInfo[msg.sender].workIDToRightNumber.push(0);
 
@@ -533,16 +507,16 @@ contract CSManagement {
 			if(CrowdURs[CSToCommittee[msg.sender][i]].presubmited){
 				if(CrowdURs[CSToCommittee[msg.sender][i]].submited == false){
 					_noSubmitID[i] = true;
-					CrowdURs[CSToCommittee[msg.sender][i]].balance -= CSToFee[msg.sender].CommFee;
+					CrowdURs[CSToCommittee[msg.sender][i]].balance =CrowdURs[CSToCommittee[msg.sender][i]].balance.sub(CSToFee[msg.sender].CommFee);
 				}
 			}else{//对没预提交的UR处理,若没预提交，_noPresubmitID中对应ID为true
 				_noPresubmitID[i] = true;
-				CrowdURs[CSToCommittee[msg.sender][i]].balance -= CSToFee[msg.sender].CommFee;
+				CrowdURs[CSToCommittee[msg.sender][i]].balance =CrowdURs[CSToCommittee[msg.sender][i]].balance.sub(CSToFee[msg.sender].CommFee);
 			}
 		}
 
 		if(CSToNumber[msg.sender].SubmitNum != 0){
-			for(uint j =0 ; j < CSToNumber[msg.sender].ImageNumber ;j++ ){
+			for(uint j =0 ; j < CSToNumber[msg.sender].ImageNumber ;j=j.add(1) ){
 				CSDataInfo[msg.sender].rightTableArray.push(-1);
 			}
 		}else{
@@ -593,10 +567,10 @@ contract CSManagement {
 
 	function calPaid() internal returns(bool) {
 
-		for(uint i = 0 ;i < CSToCommittee[msg.sender].length;i++){
-			uint paid_i = CSToFee[msg.sender].RewardFee * CSDataInfo[msg.sender].workIDToRightNumber[i];
-			CrowdURs[CSToCommittee[msg.sender][i]].balance += paid_i;
-			CrowdUT[CSDataInfo[msg.sender].crowdUT].balance -= paid_i;
+		for(uint i = 0 ;i < CSToCommittee[msg.sender].length;i=i.add(1)){
+			uint paid_i = CSToFee[msg.sender].RewardFee.mul(CSDataInfo[msg.sender].workIDToRightNumber[i]);
+			CrowdURs[CSToCommittee[msg.sender][i]].balance = CrowdURs[CSToCommittee[msg.sender][i]].balance.add(paid_i);
+			CrowdUT[CSDataInfo[msg.sender].crowdUT].balance = CrowdUT[CSDataInfo[msg.sender].crowdUT].balance.sub(paid_i);
 		}
 
 		CSDataInfo[msg.sender].CState = State.Completed;
@@ -656,8 +630,8 @@ contract CSManagement {
 		// require(CrowdURs[_crowdUR].cleaned,"no cleaned");
 
 		if(CSDataInfo[msg.sender].CState == State.Stagnant){
-			CrowdURs[_crowdUR].balance += CSToFee[msg.sender].ShareFee;
-			CrowdUT[CSDataInfo[msg.sender].crowdUT].balance -=CSToFee[msg.sender].ShareFee;
+			CrowdURs[_crowdUR].balance =CrowdURs[_crowdUR].balance.add(CSToFee[msg.sender].ShareFee);
+			CrowdUT[CSDataInfo[msg.sender].crowdUT].balance =CrowdUT[CSDataInfo[msg.sender].crowdUT].balance.sub(CSToFee[msg.sender].ShareFee);
 		}
 
 		_balance = CrowdURs[_crowdUR].balance;
@@ -721,9 +695,9 @@ contract CSManagement {
         //要帮UT清理。.
         require(myTwoSubmisson.resetCSData(),"resetCSData error");
 
-        CSToFee[msg.sender].ShareFee = CrowdUT[CSDataInfo[msg.sender].crowdUT].balance / (CSToNumber[msg.sender].CleanedNum + 1);
-        CrowdURs[_crowdUR].balance += CSToFee[msg.sender].ShareFee;
-        CrowdUT[CSDataInfo[msg.sender].crowdUT].balance -= CSToFee[msg.sender].ShareFee;
+        CSToFee[msg.sender].ShareFee = CrowdUT[CSDataInfo[msg.sender].crowdUT].balance.div((CSToNumber[msg.sender].CleanedNum.add(1)));
+        CrowdURs[_crowdUR].balance = CrowdURs[_crowdUR].balance.add(CSToFee[msg.sender].ShareFee);
+        CrowdUT[CSDataInfo[msg.sender].crowdUT].balance = CrowdUT[CSDataInfo[msg.sender].crowdUT].balance.sub(CSToFee[msg.sender].ShareFee);
 
         return _value;
 	}
@@ -760,7 +734,7 @@ contract CSManagement {
 		//清除委员会,记录成功完成的ID，以便在UM中进行状态操作
 		bool[] memory CompletedID = new bool[](CSToCommittee[msg.sender].length);
 
-		for(uint i = 0 ; i< CSToCommittee[msg.sender].length ;i++){
+		for(uint i = 0 ; i< CSToCommittee[msg.sender].length ;i=i.add(1)){
 			if(CrowdURs[CSToCommittee[msg.sender][i]].submited){
 				CompletedID[i] = true;
 				delete CrowdURs[CSToCommittee[msg.sender][i]];
@@ -786,7 +760,7 @@ contract CSManagement {
 
 		bool[] memory CompletedID = new bool[](CSToCommittee[msg.sender].length);
 
-		for(uint i = 0 ; i< CSToCommittee[msg.sender].length ;i++){
+		for(uint i = 0 ; i< CSToCommittee[msg.sender].length ;i=i.add(1)){
 			if(CrowdURs[CSToCommittee[msg.sender][i]].cleaned){
 				CompletedID[i] = true;
 				delete CrowdURs[CSToCommittee[msg.sender][i]];
@@ -802,7 +776,7 @@ contract CSManagement {
 		}else{
 			//检查UR数据是否清除
 			if(CSToCommittee[msg.sender].length != 0){//如果委员会没人，说明每一个UR都退出，推出前一定会清掉自己的相关信息,即UR信息已经clean
-				for(uint i =0;i< CSToCommittee[msg.sender].length;i++){
+				for(uint i =0;i< CSToCommittee[msg.sender].length;i=i.add(1)){
 					delete CrowdURs[CSToCommittee[msg.sender][i]];
 					// delete CSDataInfo[msg.sender].workIDToMissionID[i];//这个删不删无所谓，因为下次必然要等重新设置所有的才可以变为true
 				}
@@ -829,13 +803,8 @@ contract CSManagement {
 		}
 
 	}
-
-
-
     function getMissionID(uint _workID) public view returns(int[]memory){
         return  CSDataInfo[msg.sender].workIDToMissionID[_workID];
     }
-
-
 
 }
