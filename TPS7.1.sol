@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: SimPL-2.0
 pragma solidity ^0.7.0;
+
+import "./safemath.sol";
+
 contract TwoSubmission{
+	
+	using SafeMath for uint;
+	using SafeMath for int;
 
 	//每个CS对应一个,记录已报名UR的预报名和报名信息。
 	struct EnrollData{
 		bool used;//false就没事了
 		uint[] keyArray;
 		mapping(address => bytes32) AddrToMessage;
-		mapping(address => uint) AddrToRandomKey;
-		
+		mapping(address => uint) AddrToRandomKey;	
 	}
 	mapping(address => EnrollData)  CSToEnrollData;
 
@@ -60,7 +65,7 @@ contract TwoSubmission{
 			return true;
 		else{
 			if(CSToData[msg.sender].results.length != 0){
-				for(uint i = 0 ; i < CSToData[msg.sender].results.length;i++)
+				for(uint i = 0 ; i < CSToData[msg.sender].results.length;i = i.add(1))
 					delete CSToData[msg.sender].resultcount[CSToData[msg.sender].results[i]];
 			}
 			delete CSToData[msg.sender];
@@ -75,7 +80,7 @@ contract TwoSubmission{
 		if(!CSToEnrollData[_CSContract].used){
 			return true;
 		}else{
-			for(uint i = 0;i < _enrollAddrs.length;i++){
+			for(uint i = 0;i < _enrollAddrs.length;i = i.add(1)){
 				delete CSToEnrollData[_CSContract].AddrToMessage[_enrollAddrs[i]];
 				delete CSToEnrollData[_CSContract].AddrToRandomKey[_enrollAddrs[i]];
 			}
@@ -85,8 +90,6 @@ contract TwoSubmission{
 
 			return true;
 		}
-
-
 	}
 
 	// 两阶段选人：往后稍稍
@@ -112,8 +115,8 @@ contract TwoSubmission{
 
 	function getKeyArraySum(address _CSContract) external view returns(uint){
 		uint sum = 0;
-		for(uint i = 0;i < CSToEnrollData[_CSContract].keyArray.length; i++)
-			sum += CSToEnrollData[_CSContract].keyArray[i];
+		for(uint i = 0;i < CSToEnrollData[_CSContract].keyArray.length; i = i.add(1))
+			sum =sum.add(CSToEnrollData[_CSContract].keyArray[i]);
 		
 		return sum;
 	}
@@ -130,7 +133,7 @@ contract TwoSubmission{
 
 		CSToData[msg.sender].imageNumber = _imageNum;
 
-		for(uint i =0 ; i< _imageNum ; i++){
+		for(uint i =0 ; i< _imageNum ; i = i.add(1)){
 			AddrToCrowdURData[_crowdUR].tableArray.push(-1);//初始化标签数组为-1,为什么有此操作？如果没有的话，评估函数要改
 		}//存储太贵了！！！,1个256的槽就要20000，100个就算两百万
 
@@ -143,7 +146,7 @@ contract TwoSubmission{
 	function presubmit(address _submitter, bytes32 _sealedMessage,address[]  memory _addrs)public returns(bool)
 	{
 		bool same;
-		for(uint i = 0; i < _addrs.length;i++){
+		for(uint i = 0; i < _addrs.length;i = i.add(1)){
 			if(_sealedMessage == AddrToCrowdURData[_addrs[i]].sealedMessage){
 				same = true;
 			}
@@ -157,7 +160,7 @@ contract TwoSubmission{
 
 	function submit(address _submitter, int[] memory _message ,uint _randomKey) public returns(bool){
 
-		for(uint i = 0; i < _message.length ; i++){
+		for(uint i = 0; i < _message.length ; i = i.add(1)){
 
 			if(AddrToCrowdURData[_submitter].missionID[i] == -1)
 				require(_message[i] == -1,"Wrong missionID");
@@ -174,22 +177,22 @@ contract TwoSubmission{
 
 	function evaluation(address[] memory _addrs,uint[] memory _workIDToRightNum,int[] memory _rightTable, uint _submitNum)public returns(uint[] memory,int[] memory){
 
-		CSToData[msg.sender].RightNumberNeed = _submitNum / 2 + 1;//可以放到上个函数
+		CSToData[msg.sender].RightNumberNeed = (_submitNum.div(2)).add(1);//可以放到上个函数
 
-		for(uint i =0; i< _addrs.length;i++){
+		for(uint i =0; i< _addrs.length;i = i.add(1)){
 
 			uint rightTableCount = 0;
-			for(uint j = 0;j < CSToData[msg.sender].imageNumber; j++){
+			for(uint j = 0;j < CSToData[msg.sender].imageNumber; j =j.add(1)){
 				uint equallCount = 0;
 				if(AddrToCrowdURData[_addrs[i]].tableArray[j] != -1){
-					for(uint k =0 ; k< _addrs.length ; k++){
+					for(uint k =0 ; k< _addrs.length ; k = k.add(1)){
 						if(AddrToCrowdURData[_addrs[i]].tableArray[j] == AddrToCrowdURData[_addrs[k]].tableArray[j])
-							equallCount++;
+							equallCount =equallCount.add(1);
 					}
 				}
 
 				if(equallCount >= CSToData[msg.sender].RightNumberNeed){
-					rightTableCount++;
+					rightTableCount = rightTableCount.add(1);
 					if(_rightTable[j] != AddrToCrowdURData[_addrs[i]].tableArray[j])
 					   	_rightTable[j] = AddrToCrowdURData[_addrs[i]].tableArray[j];
 				}
@@ -204,17 +207,17 @@ contract TwoSubmission{
 
 	function evaluation2(address[] memory _addrs, int[] memory _rightTable, uint _submitNum) public returns(int[] memory) {
 
-		CSToData[msg.sender].RightNumberNeed = _submitNum / 2 + 1;
+		CSToData[msg.sender].RightNumberNeed = (_submitNum.div(2)).add(1);
 
-		for(uint j = 0;j < CSToData[msg.sender].imageNumber; j++){
+		for(uint j = 0;j < CSToData[msg.sender].imageNumber; j=j.add(1)){
 
 			int MaxResult = -1;
 			uint MaxResultCount = 0;
 			bool MaxMul = false;
 
-			for(uint i = 0 ; i < _addrs.length ; i++){
+			for(uint i = 0 ; i < _addrs.length ; i = i.add(1)){
 				if(AddrToCrowdURData[_addrs[i]].tableArray[j] != -1){
-					CSToData[msg.sender].resultcount[AddrToCrowdURData[_addrs[i]].tableArray[j]]++;
+					CSToData[msg.sender].resultcount[AddrToCrowdURData[_addrs[i]].tableArray[j]] = CSToData[msg.sender].resultcount[AddrToCrowdURData[_addrs[i]].tableArray[j]].add(1);
 
 					if(CSToData[msg.sender].resultcount[AddrToCrowdURData[_addrs[i]].tableArray[j]] == 1){
 						CSToData[msg.sender].results.push(AddrToCrowdURData[_addrs[i]].tableArray[j]);
@@ -236,7 +239,7 @@ contract TwoSubmission{
 				_rightTable[j] = MaxResult;
 			}
 
-			for(uint k = 0 ;k < _addrs.length ; k++){
+			for(uint k = 0 ;k < _addrs.length ; k=k.add(1)){
 				if(AddrToCrowdURData[_addrs[k]].tableArray[j] != -1){
 					delete CSToData[msg.sender].resultcount[AddrToCrowdURData[_addrs[k]].tableArray[j]];
 				}
@@ -248,12 +251,12 @@ contract TwoSubmission{
 	
 	function evaluation2_cal(address[]memory _addrs, uint[]memory _workIDToRightNum, int[]memory _rightTable)public view returns(uint[]memory){
 	    
-	    for(uint i = 0; i < _addrs.length ; i++){
+	    for(uint i = 0; i < _addrs.length ; i = i.add(1)){
 			uint rightTableCount = 0;
-			for(uint j = 0 ; j < CSToData[msg.sender].imageNumber; j++){
+			for(uint j = 0 ; j < CSToData[msg.sender].imageNumber; j=j.add(1)){
 				if(AddrToCrowdURData[_addrs[i]].tableArray[j] != -1){
 					if(AddrToCrowdURData[_addrs[i]].tableArray[j] == _rightTable[j])
-						rightTableCount++;
+						rightTableCount = rightTableCount.add(1);
 				}
 			}
 
