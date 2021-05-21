@@ -8,8 +8,8 @@ import "./safemath.sol";
    The crowdsourcing contract (CS) refers to a specific crowdsourcing contract address, which contains an interface for users to directly call
  * ==========================================
  *  Title: UM & CS Contracts for DCrowd.
- *  Author: Huajian Wang.
- *  Email: wanghuajian19@nudt.edu.cn.
+ *  Author: 
+ *  Email: 
  *  
  * ==========================================
  */
