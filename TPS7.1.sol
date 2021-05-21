@@ -7,8 +7,8 @@ import "./safemath.sol";
  * The TwoSubmission contract(TPS) is mainly responsible for storing crowdsourcing data and implementing functions such as two-phase submission and quality inspection
  * ==========================================
  *  Title: TwoSubmission Contracts for DCrowd.
- *  Author: Huajian Wang.
- *  Email: wanghuajian19@nudt.edu.cn.
+ *  Author: 
+ *  Email: 
  *  
  * ==========================================
  */
