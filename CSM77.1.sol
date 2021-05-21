@@ -8,8 +8,8 @@ import "./safemath.sol";
    and is responsible for implementing the crowdsourcing process and managing the state of the crowdsourcing contract.
  * ==========================================
  *  Title: CSManagement Contract for DCrowd.
- *  Author: Huajian Wang.
- *  Email: wanghuajian19@nudt.edu.cn.
+ *  Author: 
+ *  Email:
  *  
  * ==========================================
  */
